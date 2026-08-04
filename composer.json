@@ -1,0 +1,29 @@
+{
+    "name": "learning/php-magento-roadmap",
+    "description": "PHP and Magento learning exercises",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "LearnPhp\\": "stages/02-oop-composer/src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LearnPhp\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit --colors=always",
+        "lint": "@php scripts/lint.php"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

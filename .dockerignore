@@ -1,0 +1,7 @@
+.git
+.env
+.idea
+.vscode
+vendor
+coverage
+stages/07-magento-foundation/app
