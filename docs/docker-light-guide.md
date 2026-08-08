@@ -2,6 +2,8 @@
 
 这不是一门完整的 Docker 课程，只讲本项目每天真正会用到的部分。你可以一边学 PHP，一边自然恢复 Docker，不需要先学完 Docker。
 
+本文负责建立直觉；需要查询某个字段的完整英文时，打开 [命令与缩写词典](command-glossary.md)。命令块中 `#` 开头的是注释，可以连同命令一起复制。
+
 ## 先回答：这个项目由 Docker 管理吗？
 
 是。PHP、Composer、MariaDB、Valkey、Node.js、OpenSearch、RabbitMQ 和 nginx 都在 Docker 中运行。本机主要负责保存代码和执行 `docker compose` 命令。
@@ -27,6 +29,7 @@
 ### 1. 开始学习
 
 ```powershell
+# 创建并在后台启动 php 服务。-d = --detach（后台运行）
 docker compose up -d php
 ```
 
@@ -35,6 +38,7 @@ docker compose up -d php
 ### 2. 运行 PHP 文件
 
 ```powershell
+# exec = execute：在 php 服务中，用 PHP 程序执行示例文件
 docker compose exec php php stages/00-environment/hello.php
 ```
 
@@ -45,6 +49,7 @@ docker compose exec php php stages/00-environment/hello.php
 ### 3. 查看状态
 
 ```powershell
+# ps = process status：显示本项目容器状态
 docker compose ps
 ```
 
@@ -53,6 +58,7 @@ docker compose ps
 ### 4. 出错时看日志
 
 ```powershell
+# 显示 php 服务最后 50 行日志；tail 表示“末尾”
 docker compose logs --tail 50 php
 ```
 
@@ -61,6 +67,7 @@ docker compose logs --tail 50 php
 ### 5. 学完后停止
 
 ```powershell
+# 停止 php 服务，但不删除代码、容器或数据
 docker compose stop php
 ```
 
@@ -71,12 +78,25 @@ docker compose stop php
 依次执行：
 
 ```powershell
+# 查看当前正在运行的容器
 docker compose ps
+
+# 在 php 服务中显示 PHP 版本
 docker compose exec php php --version
+
+# 在 php 服务中执行第一个 PHP 示例
 docker compose exec php php stages/00-environment/hello.php
+
+# 查看 php 服务最后 10 行日志
 docker compose logs --tail 10 php
+
+# 停止 php 服务，不删除它
 docker compose stop php
+
+# 显示全部容器，包括已停止的容器；-a = --all
 docker compose ps -a
+
+# 再次在后台启动 php 服务；已有容器会被复用
 docker compose up -d php
 ```
 
@@ -105,9 +125,16 @@ docker compose up -d php
 命令失败时按顺序检查：
 
 ```powershell
+# 确认 Docker 客户端能否连接 Docker Engine
 docker version
+
+# 显示全部容器，包括已停止的容器
 docker compose ps -a
+
+# 将“服务名”替换为 php、mariadb 等实际名称，查看最后 100 行日志
 docker compose logs --tail 100 服务名
+
+# 重新启动指定服务
 docker compose restart 服务名
 ```
 

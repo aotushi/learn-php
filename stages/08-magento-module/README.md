@@ -3,11 +3,20 @@
 `Acme/Learning` 是最小可用模块骨架，安装后增加命令：
 
 ```powershell
+# 递归复制 Acme 模块目录到 Magento 的 app/code；Recurse 表示包含子目录
 Copy-Item -Recurse stages/08-magento-module/Acme stages/07-magento-foundation/app/app/code/
+
+# 在 magento-php 服务中启用 Acme_Learning 模块
 docker compose exec magento-php php bin/magento module:enable Acme_Learning
+
+# 让 Magento 应用模块新增的配置和数据库变更；upgrade 表示升级
 docker compose exec magento-php php bin/magento setup:upgrade
+
+# 运行本学习模块提供的命令，并把姓名传给 --name 选项
 docker compose exec magento-php php bin/magento learning:greet --name="Magento learner"
 ```
+
+`bin` 常用于存放可执行程序（binary），`module:enable` 和 `setup:upgrade` 是 Magento 的“命令组:动作”写法。完整字段说明见 [命令与缩写词典](../../docs/command-glossary.md)。
 
 ## 学习顺序
 

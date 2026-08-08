@@ -1,0 +1,4 @@
+interface:
+  display_name: "PHP 与 Magento 轻量教学"
+  short_description: "编写适合初学者的轻量 PHP、Docker 与 Magento 教程"
+  default_prompt: "使用 $teach-php-magento 创建或更新一节轻量初学者课程，解释命令并验证练习。"

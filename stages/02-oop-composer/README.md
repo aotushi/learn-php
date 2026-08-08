@@ -12,9 +12,14 @@
 `src/Pricing` 将商品、折扣规则和金额计算分开。先阅读测试，再阅读实现：
 
 ```powershell
+# 按 composer.lock 安装 PHP 依赖；首次运行会创建 vendor 目录
 docker compose exec php composer install
+
+# 执行 composer.json 中名为 test 的脚本，即 PHPUnit 自动测试
 docker compose exec php composer test
 ```
+
+这里的 `install` 表示安装依赖，`test` 是本项目定义的脚本名。`PHPUnit` 是 PHP 的单元测试工具。更多字段见 [命令与缩写词典](../../docs/command-glossary.md)。
 
 ## 必做练习
 

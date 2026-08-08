@@ -3,10 +3,17 @@
 ## 启动
 
 ```powershell
+# 启用 data 配置组，在后台启动 MariaDB、Valkey 等数据服务
 docker compose --profile data up -d
+
+# 查看 data 配置组中的容器状态；ps = process status
 docker compose --profile data ps
+
+# 在 php 服务中执行 PDO 数据库查询示例；PDO = PHP Data Objects
 docker compose exec php php stages/04-data-storage/exercises/pdo_products.php
 ```
+
+`--profile data` 表示选择数据服务组，`-d` 是 `--detach`（后台运行），`exec` 来自 `execute`（执行）。完整说明见 [命令与缩写词典](../../docs/command-glossary.md)。
 
 首次创建数据库时会自动生成 `learning.products` 表和两条示例数据。
 

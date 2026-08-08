@@ -24,47 +24,65 @@
 
 ## 5 分钟开始
 
-如果已经忘记 Docker，先阅读 [Docker 轻量伴学](docs/docker-light-guide.md)。只需约 10 分钟，并且可以在学习 PHP 时逐步掌握，不必先系统学完 Docker。
+如果已经忘记 Docker，先阅读 [Docker 轻量伴学](docs/docker-light-guide.md)。只需约 10 分钟，并且可以在学习 PHP 时逐步掌握，不必先系统学完 Docker。看不懂字段或缩写时查询 [命令与缩写词典](docs/command-glossary.md)。
 
 先构建并启动轻量 PHP 容器：
 
 ```powershell
+# 切换到项目目录。cd = change directory
 cd E:\code\github\learn-php
+
+# 复制本地配置模板；真实密钥只填写到 .env，不会提交到 Git
 Copy-Item .env.example .env
+
+# 创建并在后台启动 php 服务。-d = --detach（后台运行）
 docker compose up -d php
+
+# 在 php 服务中显示 PHP 版本。exec = execute（执行）
 docker compose exec php php --version
+
+# 在 php 服务中执行第一个 PHP 文件
 docker compose exec php php stages/00-environment/hello.php
 ```
 
 安装学习项目的 Composer 依赖并运行自动测试：
 
 ```powershell
+# 按 composer.lock 安装项目依赖
 docker compose exec php composer install
+
+# 执行 composer.json 中定义的自动测试
 docker compose exec php composer test
 ```
 
 启动 Web 基础练习后访问 <http://localhost:8080>：
 
 ```powershell
+# 启用 web 配置组，并在后台启动 web 服务
 docker compose --profile web up -d web
 ```
 
 启动数据库和缓存练习环境：
 
 ```powershell
+# 启用 data 配置组，启动数据库和缓存等服务
 docker compose --profile data up -d
+
+# 查看 data 配置组中的容器状态。ps = process status
 docker compose --profile data ps
 ```
 
 进入容器执行练习：
 
 ```powershell
+# 在 php 服务中启动 Bash，进入容器的交互式命令行
 docker compose exec php bash
 ```
 
 停止环境不会删除学习数据：
 
 ```powershell
+# 停止并移除这些配置组的容器与网络；默认保留数据卷
 docker compose --profile web --profile data --profile frontend --profile magento down
 ```
 
@@ -93,6 +111,7 @@ docker compose --profile web --profile data --profile frontend --profile magento
 Magento 代码由官方 Composer 仓库分发，下载时需要免费的 Adobe Commerce Marketplace 公钥和私钥。项目不会保存真实密钥；取得密钥后填入本地 `.env`，再运行：
 
 ```powershell
+# 运行 Magento 自动安装脚本
 powershell -ExecutionPolicy Bypass -File scripts/setup-magento.ps1
 ```
 

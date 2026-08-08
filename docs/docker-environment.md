@@ -1,5 +1,7 @@
 # Docker 环境手册
 
+如果命令中的字段或缩写不熟悉，先查 [命令与缩写词典](command-glossary.md)。代码块中 `#` 开头的是可安全复制的解释性注释。
+
 ## 为什么分成多个 Profile
 
 PHP 语法练习只需要一个轻量容器；Magento 完整环境会同时占用数据库、搜索、缓存和队列资源。因此按需启动：
@@ -25,24 +27,28 @@ PHP 语法练习只需要一个轻量容器；Magento 完整环境会同时占�
 ## 常用命令
 
 ```powershell
-# 查看所有服务，包括尚未启动的 Profile
+# 启用所有配置组，解析配置并只列出服务名；不会启动服务
 docker compose --profile web --profile data --profile frontend --profile magento config --services
 
-# 查看状态与日志
+# 显示 Magento 配置组的容器状态；ps = process status
 docker compose --profile magento ps
+
+# 查看 php 服务最后 100 行日志
 docker compose logs --tail 100 php
+
+# 查看 mariadb 服务最后 100 行日志
 docker compose logs --tail 100 mariadb
 
-# 在 PHP 容器运行单个文件
+# 在 php 服务中用 PHP 程序运行订单金额示例
 docker compose exec php php stages/01-php-syntax/exercises/order_total.php
 
-# 开启 Xdebug 执行一次命令
+# 仅为这一次执行设置环境变量，开启 Xdebug 调试模式；-e = --env
 docker compose exec -e XDEBUG_MODE=debug php php your-script.php
 
-# 打开数据库命令行
+# 在 mariadb 服务中打开数据库客户端：-u 指用户，-p 后面是本地密码
 docker compose exec mariadb mariadb -umagento -pmagento-local-only learning
 
-# 打开 Valkey 命令行
+# 在 valkey 服务中打开 Valkey 命令行客户端；CLI = Command-Line Interface
 docker compose exec valkey valkey-cli
 ```
 
@@ -54,6 +60,7 @@ docker compose exec valkey valkey-cli
 4. 运行安装脚本：
 
 ```powershell
+# `-ExecutionPolicy Bypass` 仅为本次运行绕过本机脚本限制；`-File` 指定脚本文件
 powershell -ExecutionPolicy Bypass -File scripts/setup-magento.ps1
 ```
 
@@ -69,11 +76,22 @@ powershell -ExecutionPolicy Bypass -File scripts/setup-magento.ps1
 ## Magento 常用命令
 
 ```powershell
+# 查看已经启用和停用的 Magento 模块
 docker compose exec magento-php php bin/magento module:status
+
+# 查看每一种 Magento 缓存的状态
 docker compose exec magento-php php bin/magento cache:status
+
+# 清空 Magento 缓存；flush 表示“清空”
 docker compose exec magento-php php bin/magento cache:flush
+
+# 查看索引器状态；indexer 表示“索引器”
 docker compose exec magento-php php bin/magento indexer:status
+
+# 重建全部索引；reindex 表示“重新建立索引”
 docker compose exec magento-php php bin/magento indexer:reindex
+
+# 手工执行一次定时任务；Cron 是类 Unix 系统的定时任务机制
 docker compose exec magento-php php bin/magento cron:run
 ```
 
@@ -84,6 +102,7 @@ docker compose exec magento-php php bin/magento cron:run
 先看日志：
 
 ```powershell
+# 查看 opensearch 服务最后 200 行日志
 docker compose logs --tail 200 opensearch
 ```
 
@@ -94,6 +113,7 @@ docker compose logs --tail 200 opensearch
 本项目默认使用 8080、8088、13307、6380、9200、5672 和 15672。都可以在 `.env` 中修改。用下面的命令查占用者：
 
 ```powershell
+# 获取正在监听的 TCP 端口，再只保留本项目关心的端口
 Get-NetTCPConnection -State Listen | Where-Object LocalPort -In 8080,8088,13307,6380,9200,5672,15672
 ```
 

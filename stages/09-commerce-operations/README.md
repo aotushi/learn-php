@@ -7,9 +7,14 @@
 - Magento 2.4.8 不支持 Elasticsearch；理解 Elasticsearch 7 到 OpenSearch 的历史关系即可，实际练习使用 OpenSearch 3。
 
 ```powershell
+# 请求 OpenSearch 根地址，查看服务和版本信息
 Invoke-RestMethod http://localhost:9200
+
+# 请求集群健康接口；REST = Representational State Transfer
 Invoke-RestMethod http://localhost:9200/_cluster/health
 ```
+
+`Invoke-RestMethod` 是 PowerShell 发送 HTTP 请求并解析响应的命令；`localhost` 表示本机，`9200` 是 OpenSearch 暴露给本机的端口。缩写可查 [命令与缩写词典](../../docs/command-glossary.md)。
 
 ## RabbitMQ
 

@@ -10,8 +10,11 @@
 ## 运行示例
 
 ```powershell
+# 在 php 服务中，用 PHP 程序执行订单金额练习文件
 docker compose exec php php stages/01-php-syntax/exercises/order_total.php
 ```
+
+字段拆解：`exec` 来自 `execute`，表示在运行中的服务里执行；第一个 `php` 是服务名，第二个 `php` 是程序名，最后是交给程序的文件路径。完整说明见 [命令与缩写词典](../../docs/command-glossary.md)。
 
 ## 练习顺序
 

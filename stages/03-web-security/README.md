@@ -10,8 +10,11 @@
 ## 运行
 
 ```powershell
+# 启用 web 配置组，并在后台启动 web 服务；-d = --detach
 docker compose --profile web up -d web
 ```
+
+`--profile web` 选择 Web 学习需要的服务组；最后的 `web` 是具体服务名。完整说明见 [命令与缩写词典](../../docs/command-glossary.md)。
 
 访问 <http://localhost:8080>，提交姓名并观察 URL、请求方法和转义结果。
 
