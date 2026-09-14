@@ -1,6 +1,6 @@
 {
-    "name": "learning/php-magento-roadmap",
-    "description": "PHP and Magento learning exercises",
+    "name": "learning/php-fullstack-roadmap",
+    "description": "PHP, ThinkPHP, Vue admin, and Magento learning exercises",
     "type": "project",
     "license": "proprietary",
     "require": {

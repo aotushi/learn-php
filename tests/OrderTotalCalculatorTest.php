@@ -37,4 +37,24 @@ final class OrderTotalCalculatorTest extends TestCase
 
         self::assertSame(0, $result->totalMinor);
     }
+
+    public function testFullDiscountAndIntegerRounding(): void
+    {
+        $items = [new LineItem('TEST', 101, 1)];
+        $calculator = new OrderTotalCalculator();
+        self::assertSame(0, $calculator->calculate($items, new PercentageDiscount(100))->totalMinor);
+        self::assertSame(91, $calculator->calculate($items, new PercentageDiscount(10))->totalMinor);
+    }
+
+    public function testInvalidPriceIsRejected(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        new LineItem('TEST', -1, 1);
+    }
+
+    public function testZeroQuantityIsRejected(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        new LineItem('TEST', 100, 0);
+    }
 }

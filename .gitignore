@@ -6,4 +6,4 @@ node_modules/
 dist/
 .phpunit.cache/
 coverage/
-stages/07-magento-foundation/app/*
+stages/10-magento-foundation/app/*

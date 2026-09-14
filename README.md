@@ -1,124 +1,74 @@
-# PHP 与 Magento 学习项目
+# PHP 8.4 + ThinkPHP 8.1：30 天后台开发练习
 
-这是一个可直接用 Docker 学习的分阶段项目，目标不是只记 PHP 语法，而是逐步具备维护和二次开发 Magento 外贸电商网站的能力。
+第一阶段：PHP 8.4、MySQL 8.4 LTS、ThinkPHP 8.1、Vue 后台联调。第二阶段：Magento。目标是独立完成一个小型商品管理功能，不是一个月精通 PHP，也不是从零建设商城。
 
-学习主线：
+先读 [30 天路线与每日教程](docs/learning-path.md)。Docker 已经忘记也没关系，跟着 [轻量伴学](docs/docker-light-guide.md) 使用即可；命令字段查 [词典](docs/command-glossary.md)。
 
-> PHP 基础 → 面向对象与工程化 → Web、数据库与安全 → Linux 与前端协作 → Magento 架构 → 模块开发 → 搜索、缓存、队列、性能与升级 → B2C 综合项目
+## 先运行 PHP
 
-## 当前环境版本
-
-| 组件 | 版本 | 用途 |
-| --- | --- | --- |
-| PHP | 8.4 | PHP 练习与 Magento 运行时 |
-| Composer | 2.10 | PHP 依赖与自动加载 |
-| MariaDB | 11.4 | 关系数据库 |
-| Valkey | 8.1 | Redis 兼容的缓存与会话服务 |
-| OpenSearch | 3 | Magento 商品搜索 |
-| RabbitMQ | 4.2 | 异步消息队列 |
-| nginx | 1.28 | Magento Web 入口 |
-| Node.js | 22 | 前端基础练习 |
-| Magento Open Source | 2.4.8-p5 | Magento 学习目标版本 |
-
-这些版本按 Magento Open Source 2.4.8-p5 的官方兼容范围选择。Magento 2.4.8 已不再支持 Elasticsearch，因此本项目学习它的继任者 OpenSearch，同时保留两者的概念对照。
-
-## 5 分钟开始
-
-如果已经忘记 Docker，先阅读 [Docker 轻量伴学](docs/docker-light-guide.md)。只需约 10 分钟，并且可以在学习 PHP 时逐步掌握，不必先系统学完 Docker。看不懂字段或缩写时查询 [命令与缩写词典](docs/command-glossary.md)。
-
-先构建并启动轻量 PHP 容器：
+命令均在本仓库根目录的 PowerShell 执行。# 开头的是注释，可以整块复制。
 
 ```powershell
-# 切换到项目目录。cd = change directory
-cd E:\code\github\learn-php
-
-# 复制本地配置模板；真实密钥只填写到 .env，不会提交到 Git
-Copy-Item .env.example .env
-
-# 创建并在后台启动 php 服务。-d = --detach（后台运行）
+# 仅在没有本地配置时复制示例，不覆盖已有端口或密码
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+# 后台启动 PHP 工具容器；-d = --detach
 docker compose up -d php
-
-# 在 php 服务中显示 PHP 版本。exec = execute（执行）
+# 第一个 php 是服务名，第二个是容器内的 PHP 程序
 docker compose exec php php --version
-
-# 在 php 服务中执行第一个 PHP 文件
+# 执行第一个文件；结果显示在当前终端
 docker compose exec php php stages/00-environment/hello.php
 ```
 
-安装学习项目的 Composer 依赖并运行自动测试：
+预期：PHP 8.4 和问候语。若缺少镜像，Compose 会构建，首次下载可能需数分钟；修改练习源码不必重新构建。
+
+## 运行完整的小示例（第 19 天；也可先预览）
 
 ```powershell
-# 按 composer.lock 安装项目依赖
-docker compose exec php composer install
+# 安装锁定依赖、补齐本机学习表，等待 MySQL、ThinkPHP、Vue 均可用
+powershell -ExecutionPolicy Bypass -File scripts/setup-thinkphp.ps1 -WithFrontend
+# 检查 API 与数据库健康
+Invoke-RestMethod http://localhost:18081/api/health
+```
 
-# 执行 composer.json 中定义的自动测试
+打开 http://localhost:15173。编辑账户 admin、只读账户 viewer，初始密码均为 LearnPhp123!。页面提供登录、商品列表、新增、编辑、删除及错误提示；商品确实保存在 MySQL，不是写死的前端数据。完整页面刷新后需要重新登录。
+
+省略 -WithFrontend 只准备后端。脚本可重复执行，不重置已有商品或账户密码，但会补回缺少的示例种子。没有登录直接请求商品 API 返回 401，这是预期；手动命令见 [接口练习](docs/api-workshop.md)。
+
+示例只是联调对照工具，不替代你的现有后台；已有 Vue 后台需要核对登录、路由守卫、令牌过期和商品契约，不能只改地址。详见 [适配边界](docs/vue-admin-integration.md)。本仓库不会修改 resume 项目。
+
+## 30 天安排
+
+| 天 | 主要结果 | 每日教程 | 对应素材目录 |
+| --- | --- | --- | --- |
+| 1–7 | PHP 语法和金额小程序 | [第一周](docs/lessons/01-php.md) | 00、01 |
+| 8–12 | HTTP、基础对象、Composer、MySQL、PDO JSON | [基础连接](docs/lessons/02-foundations.md) | 02、03、04 |
+| 13–18 | ThinkPHP 商品增删改查和验证 | [框架实践](docs/lessons/03-thinkphp.md) | 07、08 |
+| 19–24 | Vue、简单登录、固定权限、联调排错 | [前后端联调](docs/lessons/04-integration.md) | 06、08 |
+| 25–30 | 测试、事务/索引入门、复现与交付 | [收尾验收](docs/lessons/05-delivery.md) | 04、05、09 |
+
+目录编号按知识主题保留，不代表本次每天的阅读顺序。以每日教程为准。[进度清单](docs/progress-checklist.md) 不预先替学习者打勾。
+
+本月必做：商品增删改查、基本验证、简单登录、读写权限、错误处理、测试、可重复运行。订单、分类、复杂库存、缓存、队列和高级认证是扩展，不作为最后三天的硬要求。
+
+## 自检
+
+```powershell
+# 单元测试：验证金额和商品输入边界
 docker compose exec php composer test
+# PHP 语法检查
+docker compose exec php composer lint
+# 真实接口检查：创建临时商品，验证后清理自己的测试数据
+docker compose exec php php scripts/api-smoke.php
+# 编译 Vue；还需要打开浏览器操作，构建不能替代运行验收
+docker compose --profile frontend run --rm node npm run build
 ```
 
-启动 Web 基础练习后访问 <http://localhost:8080>：
+验收见 [阶段 09](stages/09-admin-capstone/README.md)，维护者实测结果见 [修订验收记录](docs/verification.md)。版本、端口、故障处理见 [环境手册](docs/docker-environment.md)。
 
-```powershell
-# 启用 web 配置组，并在后台启动 web 服务
-docker compose --profile web up -d web
-```
+## 版本与第二阶段
 
-启动数据库和缓存练习环境：
+主线固定 PHP 8.4、MySQL 8.4 LTS、ThinkPHP 模板 8.1.3 / 核心 8.1.4（应用锁文件）、Node.js 22。Docker 的 8.4 标签会接收同系列补丁，不表示每台机器补丁号完全相同。PHP 7 是后续旧项目兼容专题，见 [兼容说明](docs/php7-compatibility.md)。
 
-```powershell
-# 启用 data 配置组，启动数据库和缓存等服务
-docker compose --profile data up -d
+Magento 保留为第二阶段：[10 基础](stages/10-magento-foundation/README.md) → [11 模块](stages/11-magento-module/README.md) → [12 运维](stages/12-magento-operations/README.md) → [13 项目](stages/13-magento-capstone/README.md)。安装前重新核对 Adobe 兼容表与 Marketplace 权限。本次不安装或验证 Magento。
 
-# 查看 data 配置组中的容器状态。ps = process status
-docker compose --profile data ps
-```
-
-进入容器执行练习：
-
-```powershell
-# 在 php 服务中启动 Bash，进入容器的交互式命令行
-docker compose exec php bash
-```
-
-停止环境不会删除学习数据：
-
-```powershell
-# 停止并移除这些配置组的容器与网络；默认保留数据卷
-docker compose --profile web --profile data --profile frontend --profile magento down
-```
-
-> 不要随意添加 `-v`。`docker compose down -v` 会删除本地数据库等学习数据。
-
-## 学习顺序
-
-| 阶段 | 目录 | 建议时间 | 完成标志 |
-| --- | --- | ---: | --- |
-| 00 | `stages/00-environment` | 1–2 天 | 会用 Docker 执行 PHP、Composer 和测试 |
-| 01 | `stages/01-php-syntax` | 2 周 | 能独立完成订单金额计算等命令行练习 |
-| 02 | `stages/02-oop-composer` | 2 周 | 掌握类、接口、异常、命名空间和自动加载 |
-| 03 | `stages/03-web-security` | 2 周 | 理解 HTTP、表单、会话、验证与常见安全问题 |
-| 04 | `stages/04-data-storage` | 2 周 | 会写 SQL、事务、索引，并使用缓存 |
-| 05 | `stages/05-engineering` | 2 周 | 会测试、调试、重构和阅读陌生项目 |
-| 06 | `stages/06-linux-frontend` | 2 周 | 会部署排障，并能与 Vue/React 前端协作 |
-| 07 | `stages/07-magento-foundation` | 3 周 | 能安装、配置和解释 Magento 核心结构 |
-| 08 | `stages/08-magento-module` | 4 周 | 能完成模块、数据、后台配置和 API 开发 |
-| 09 | `stages/09-commerce-operations` | 3 周 | 会处理缓存、索引、队列、搜索、性能和升级 |
-| 10 | `stages/10-capstone` | 3 周 | 完成一个可演示、可测试的 B2C 功能闭环 |
-
-完整的每周安排、练习和验收标准见 [学习路线](docs/learning-path.md)。岗位要求与各阶段的对应关系见 [岗位能力映射](docs/job-skill-map.md)。
-
-## Magento 环境说明
-
-Magento 代码由官方 Composer 仓库分发，下载时需要免费的 Adobe Commerce Marketplace 公钥和私钥。项目不会保存真实密钥；取得密钥后填入本地 `.env`，再运行：
-
-```powershell
-# 运行 Magento 自动安装脚本
-powershell -ExecutionPolicy Bypass -File scripts/setup-magento.ps1
-```
-
-脚本会下载 Magento 2.4.8-p5、启动所有依赖、完成本地安装并输出访问地址。详细说明和常见问题见 [Docker 环境手册](docs/docker-environment.md)。
-
-## 日常节奏
-
-建议每天 60–90 分钟：20 分钟阅读、40 分钟动手、10 分钟记录。每阶段都按“学习 → 小练习 → 阶段项目 → 自测”推进。不要在未做练习时连续阅读大量章节。
-
-学习记录可以直接写在 [进度清单](docs/progress-checklist.md) 中。所有命令默认在本项目根目录执行。
+所有端口只绑定本机 127.0.0.1。默认密码、开发服务器和简化登录仅供本地教学，不得直接公开部署。不要运行 docker compose down -v，它会删除本项目数据卷。

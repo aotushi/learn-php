@@ -6,7 +6,7 @@
 
 ## 先回答：这个项目由 Docker 管理吗？
 
-是。PHP、Composer、MariaDB、Valkey、Node.js、OpenSearch、RabbitMQ 和 nginx 都在 Docker 中运行。本机主要负责保存代码和执行 `docker compose` 命令。
+是。PHP、Composer、ThinkPHP、MySQL、Valkey、Node.js、OpenSearch、RabbitMQ 和 nginx 都在 Docker 中运行。本机主要负责保存代码和执行 `docker compose` 命令。
 
 这样做的好处是：不用在 Windows 中分别安装和切换这些软件版本，项目环境也更容易重建。
 
@@ -55,14 +55,14 @@ docker compose ps
 
 看到 `Up` 或 `running` 表示正在运行；看到 `Exited` 表示已经停止。
 
-### 4. 出错时看日志
+### 4. 出错时先分清是哪一种输出
 
 ```powershell
-# 显示 php 服务最后 50 行日志；tail 表示“末尾”
+# 查看容器主进程的最后 50 行；本项目 php 的主进程是 sleep，通常为空
 docker compose logs --tail 50 php
 ```
 
-意思：查看 PHP 环境最后 50 行记录。
+CLI 脚本通过 exec 执行时，输出/异常就在执行命令的当前终端，不会自动进入上面的日志。thinkphp/web 的主进程是 Web 服务器，HTTP 访问记录看对应服务日志；ThinkPHP 详细异常还会写入阶段 07 的 app/runtime/log。
 
 ### 5. 学完后停止
 
@@ -114,9 +114,10 @@ docker compose up -d php
 | --- | --- | --- |
 | PHP 语法、OOP、测试 | `docker compose up -d php` | 容器、执行命令、挂载 |
 | Web 基础 | `docker compose --profile web up -d` | 端口，浏览器如何访问容器 |
-| 数据库与缓存 | `docker compose --profile data up -d` | 多容器通信、数据卷、健康状态 |
-| Vue 前端 | `docker compose --profile frontend up -d` | 不同开发环境按需启动 |
-| Magento | `docker compose --profile magento up -d` | 多服务组合、日志和资源使用 |
+| MySQL | `docker compose --profile data up -d --wait php mysql` | 多容器通信、数据卷、健康状态 |
+| Vue 前端 | `powershell -File scripts/setup-thinkphp.ps1 -WithFrontend` | 先安装依赖，再等待前后端健康 |
+| ThinkPHP + Vue 后台 | `docker compose --profile thinkphp up -d` | 应用等待数据库健康、端口联调 |
+| 第二阶段 Magento | `docker compose --profile magento up -d` | 多服务组合、日志和资源使用 |
 
 这样 Docker 学习会跟着真实问题出现，不需要死记命令。
 
@@ -131,7 +132,7 @@ docker version
 # 显示全部容器，包括已停止的容器
 docker compose ps -a
 
-# 将“服务名”替换为 php、mariadb 等实际名称，查看最后 100 行日志
+# 将“服务名”替换为 php、mysql、thinkphp 等实际名称，查看最后 100 行日志
 docker compose logs --tail 100 服务名
 
 # 重新启动指定服务
@@ -147,7 +148,7 @@ docker compose restart 服务名
 
 ## 安全边界
 
-下面这些命令日常可以放心使用：
+下面是常用命令，但 exec 执行什么决定它是否安全，restart/down 会中断本项目服务：
 
 ```text
 docker compose up
@@ -178,4 +179,4 @@ docker volume rm
 - 能查看状态和日志。
 - 知道数据保存在代码目录还是数据卷中。
 
-更完整的版本、端口和 Magento 命令需要时再查 [Docker 环境手册](docker-environment.md)。
+更完整的版本、端口、ThinkPHP 和 Magento 命令需要时再查 [Docker 环境手册](docker-environment.md)。

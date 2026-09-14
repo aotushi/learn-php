@@ -3,5 +3,13 @@
 .idea
 .vscode
 vendor
+**/vendor
+node_modules
+**/node_modules
+dist
+**/dist
+runtime
+**/runtime
+.phpunit.cache
 coverage
-stages/07-magento-foundation/app
+stages/10-magento-foundation/app

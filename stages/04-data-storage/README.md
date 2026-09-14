@@ -1,37 +1,18 @@
-# 阶段 04：MariaDB 与 Valkey
+# 阶段 04：MySQL 8.4 与 PDO
 
-## 启动
+主线见 [第 11–12 天](../../docs/lessons/02-foundations.md)；事务与索引在 [第 26 天](../../docs/lessons/05-delivery.md) 巩固。本月不要求实现订单/库存系统。
 
 ```powershell
-# 启用 data 配置组，在后台启动 MariaDB、Valkey 等数据服务
-docker compose --profile data up -d
-
-# 查看 data 配置组中的容器状态；ps = process status
-docker compose --profile data ps
-
-# 在 php 服务中执行 PDO 数据库查询示例；PDO = PHP Data Objects
+# 只启动 PHP、MySQL，等待数据库健康后才执行查询
+docker compose --profile data up -d --wait php mysql
+# 为新旧本地数据卷补齐表和缺少的学习种子，不重置已有记录
+docker compose exec php php scripts/setup-data.php
+# 运行绑定参数的只读查询
 docker compose exec php php stages/04-data-storage/exercises/pdo_products.php
 ```
 
-`--profile data` 表示选择数据服务组，`-d` 是 `--detach`（后台运行），`exec` 来自 `execute`（执行）。完整说明见 [命令与缩写词典](../../docs/command-glossary.md)。
+预期看到示例商品；失败先看 mysql 健康状态及连接配置。表结构见 docker/mysql/init.sql。首次启动由 init.sh 选择 MYSQL_DATABASE，已有卷由 setup-data.php 增量补齐；修改 SQL 不会自动更改已有表结构。
 
-首次创建数据库时会自动生成 `learning.products` 表和两条示例数据。
+必做：解释主键/唯一约束、绑定参数、SKU 索引，运行 transaction.php 看到失败回滚且无残留测试行。商品表的 stock_qty 只是教学字段，不等于实现库存流水和并发扣减。
 
-## 学习内容
-
-- 数据建模、约束、连接、聚合、事务和隔离。
-- 参数绑定、迁移、批量写入与错误处理。
-- `EXPLAIN`、复合索引、选择性和慢查询。
-- Valkey/Redis 的数据结构、过期、缓存失效和会话。
-
-## 必做练习
-
-1. 设计 `customers`、`orders`、`order_items`，保证订单保留成交时价格。
-2. 用一个事务创建订单并扣减库存，模拟中途失败并确认回滚。
-3. 分别为 SKU 查询、名称搜索、价格区间写 `EXPLAIN`。
-4. 将商品详情缓存 60 秒；更新数据库后主动删除缓存。
-5. 解释为何不能把 Valkey 当作唯一的订单存储。
-
-## 验收
-
-能根据具体查询证明索引是否有效；能说明事务边界和缓存一致性策略。
+扩展：分类、订单事务、库存变化历史、分页查询、Valkey 缓存。缓存使用独立 cache profile，data profile 不启动缓存。等核心商品闭环通过后再学。

@@ -1,128 +1,80 @@
 # Docker 环境手册
 
-如果命令中的字段或缩写不熟悉，先查 [命令与缩写词典](command-glossary.md)。代码块中 `#` 开头的是可安全复制的解释性注释。
+日常跟随 [轻量伴学](docker-light-guide.md)。命令字段随查 [词典](command-glossary.md)。所有服务只绑定 127.0.0.1；不要把带默认密码和开发服务器的项目发布公网。
 
-## 为什么分成多个 Profile
+## 按需启动
 
-PHP 语法练习只需要一个轻量容器；Magento 完整环境会同时占用数据库、搜索、缓存和队列资源。因此按需启动：
+| 场景 | 准备方式 | 服务 |
+| --- | --- | --- |
+| PHP 语法 | docker compose up -d php | PHP 工具容器 |
+| 原生 HTTP | docker compose --profile web up -d web | PHP 网页示例 |
+| MySQL | docker compose --profile data up -d --wait php mysql | PHP + MySQL，不启动缓存 |
+| ThinkPHP | setup-thinkphp.ps1 | 安装锁定依赖、学习表、API 健康检查 |
+| Vue 对照示例 | setup-thinkphp.ps1 -WithFrontend | 上述服务 + Vue |
+| 缓存扩展 | cache profile | Valkey，第一月选做 |
+| Magento | 阶段 10 安装脚本 | 独立第二阶段 |
 
-| 命令 | 启动内容 |
-| --- | --- |
-| `docker compose up -d php` | PHP、Composer、PHPUnit |
-| `docker compose --profile web up -d` | PHP 加内置 Web 示例 |
-| `docker compose --profile data up -d` | PHP、MariaDB、Valkey |
-| `docker compose --profile frontend up -d` | PHP、Node.js |
-| `docker compose --profile magento up -d` | Magento 所需完整服务 |
+profile 是配置组。首次使用 ThinkPHP/Vue 不要跳过安装脚本；单独 up 不会替你安装 Composer/npm 依赖。
 
-## 版本选择
-
-本项目以 Magento Open Source 2.4.8-p5 为目标。Adobe 官方兼容表列出的关键版本包括 PHP 8.4/8.3、Composer 2.10、OpenSearch 3、MariaDB 11.4/11.8、RabbitMQ 4.2、Valkey 8.1 和 nginx 1.28。本项目选择其中较适合本地学习的一组固定主次版本。
-
-官方资料：
-
-- [Magento 系统要求](https://experienceleague.adobe.com/en/docs/commerce-operations/installation-guide/system-requirements)
-- [Magento Open Source 2.4.8 发布说明](https://experienceleague.adobe.com/en/docs/commerce-operations/release/notes/magento-open-source/2-4-8)
-- [获取 Magento 软件](https://experienceleague.adobe.com/en/docs/commerce-operations/installation-guide/prerequisites/commerce)
-
-## 常用命令
+## 第一阶段准备与检查
 
 ```powershell
-# 启用所有配置组，解析配置并只列出服务名；不会启动服务
-docker compose --profile web --profile data --profile frontend --profile magento config --services
-
-# 显示 Magento 配置组的容器状态；ps = process status
-docker compose --profile magento ps
-
-# 查看 php 服务最后 100 行日志
-docker compose logs --tail 100 php
-
-# 查看 mariadb 服务最后 100 行日志
-docker compose logs --tail 100 mariadb
-
-# 在 php 服务中用 PHP 程序运行订单金额示例
-docker compose exec php php stages/01-php-syntax/exercises/order_total.php
-
-# 仅为这一次执行设置环境变量，开启 Xdebug 调试模式；-e = --env
-docker compose exec -e XDEBUG_MODE=debug php php your-script.php
-
-# 在 mariadb 服务中打开数据库客户端：-u 指用户，-p 后面是本地密码
-docker compose exec mariadb mariadb -umagento -pmagento-local-only learning
-
-# 在 valkey 服务中打开 Valkey 命令行客户端；CLI = Command-Line Interface
-docker compose exec valkey valkey-cli
+# 完整本机对照示例；不需要 Vue 时省略 -WithFrontend
+powershell -ExecutionPolicy Bypass -File scripts/setup-thinkphp.ps1 -WithFrontend
+# 查看本项目服务状态
+docker compose ps
+# 验证应用与数据库连接；不需要登录
+Invoke-RestMethod http://localhost:18081/api/health
 ```
 
-## 安装 Magento
+预期：应用健康，页面 http://localhost:15173 可登录。初始 admin/viewer 密码均为 LearnPhp123!；重复初始化不重置密码。API 在 18081；商品接口需要令牌，按 [手动练习](api-workshop.md) 登录。MySQL 宿主机端口 13307，容器间用 mysql:3306。
 
-1. 在 Adobe Commerce Marketplace 创建 Access Keys。
-2. 复制 `.env.example` 为 `.env`，填入 `MAGENTO_PUBLIC_KEY` 和 `MAGENTO_PRIVATE_KEY`。
-3. 保证 Docker Desktop 至少可使用约 6 GB 内存。
-4. 运行安装脚本：
+脚本检查 Docker 可用性，用退出码处理原生命令结果，兼容 Windows PowerShell 5.1；缺镜像时构建。--wait 结合 API 健康检查，不只检查容器进程存在。首次下载较慢，别同时启动多个安装过程。
+
+## 数据与依赖
+
+- 本机源码通过绑定挂载共享，改 PHP 无需构建镜像。
+- MySQL 使用 mysql84-data 命名卷；旧 MariaDB 卷保留，未自动删除或导入。
+- Node 使用 frontend-modules 卷，避免 Windows/Linux 的原生依赖互相污染。
+- PHP 依赖由两个 composer.lock 固定；前端由 package-lock.json 固定。npm ci 会重建前端依赖卷里的 node_modules，不会删除源码。
+- 新 MySQL 卷执行 docker/mysql/init.sh；它用 MYSQL_DATABASE/MYSQL_USER 选择数据库及授权。名称只用英文字母、数字、下划线。
+- 已有卷由 scripts/setup-data.php 补缺少的表和种子，不删除/覆盖已有商品或密码。CREATE TABLE IF NOT EXISTS 不会升级已有表结构。
+- 修改 .env 的数据库名/用户/密码不能自动改变已有 MySQL 账户。需要专门的迁移/授权步骤；不要用 down -v 解决连接失败。
+
+## 日志分三类
 
 ```powershell
-# `-ExecutionPolicy Bypass` 仅为本次运行绕过本机脚本限制；`-File` 指定脚本文件
-powershell -ExecutionPolicy Bypass -File scripts/setup-magento.ps1
+# CLI：脚本输出在当前终端
+docker compose exec php php stages/01-php-syntax/exercises/day05.php
+# Web：ThinkPHP 开发服务器的访问记录
+docker compose logs --tail 50 thinkphp
+# 应用：列出详细错误日志目录，按日期打开需要的文件
+Get-ChildItem stages/07-thinkphp-foundation/app/runtime/log -Recurse -File
 ```
 
-安装完成后：
+php 容器主进程是 sleep，docker compose logs php 为空通常正常；exec 的脚本错误不会自动进入它。500 的堆栈保存在应用日志，API 只返回通用错误，不把数据库细节送给浏览器。
 
-- 店铺：<http://localhost:8088>
-- 后台：<http://localhost:8088/admin>
-- RabbitMQ 管理页：<http://localhost:15672>
-- OpenSearch：<http://localhost:9200>
+## 常见问题
 
-本地默认账户在 `.env` 中。它们只适合本机学习，不能用于公网环境。
-
-## Magento 常用命令
+Docker API 无法连接：打开 Docker Desktop，等待引擎就绪。数据库未健康：查看 mysql 日志。缺 vendor/autoload.php：重跑安装脚本。Vue 空白：查浏览器控制台与 frontend 日志；只有 build 成功不够。
 
 ```powershell
-# 查看已经启用和停用的 Magento 模块
-docker compose exec magento-php php bin/magento module:status
-
-# 查看每一种 Magento 缓存的状态
-docker compose exec magento-php php bin/magento cache:status
-
-# 清空 Magento 缓存；flush 表示“清空”
-docker compose exec magento-php php bin/magento cache:flush
-
-# 查看索引器状态；indexer 表示“索引器”
-docker compose exec magento-php php bin/magento indexer:status
-
-# 重建全部索引；reindex 表示“重新建立索引”
-docker compose exec magento-php php bin/magento indexer:reindex
-
-# 手工执行一次定时任务；Cron 是类 Unix 系统的定时任务机制
-docker compose exec magento-php php bin/magento cron:run
+# 查看 Docker 客户端和引擎版本；只有客户端信息说明引擎未就绪
+docker version
+# 查看本项目全部容器，包括停止的
+docker compose ps -a
+# 查看数据库最近输出
+docker compose logs --tail 50 mysql
+# 查看前端开发服务最近输出
+docker compose logs --tail 50 frontend
 ```
 
-## 故障排查
+端口占用时修改 .env 中本项目端口，不关闭别的项目。常用默认端口：8080（原生网页）、18081（ThinkPHP）、15173（Vue）、13307（MySQL）。
 
-### OpenSearch 无法启动
+## 版本与第二阶段
 
-先看日志：
+第一阶段 PHP 8.4、MySQL 8.4 LTS、ThinkPHP 核心 8.1.4、Node.js 22。8.4 镜像标签会接收同系列补丁。锁定依赖不等于永远不更新；更新后重跑测试。
 
-```powershell
-# 查看 opensearch 服务最后 200 行日志
-docker compose logs --tail 200 opensearch
-```
+第二阶段保留 Magento 2.4.8-p5 配置，额外用 Valkey/OpenSearch/RabbitMQ/nginx。安装前核对 [Adobe 系统要求](https://experienceleague.adobe.com/en/docs/commerce-operations/installation-guide/system-requirements) 与 Marketplace 密钥，再按 [阶段 10](../stages/10-magento-foundation/README.md) 操作；本次未安装验证 Magento。
 
-常见原因是 Docker Desktop 内存不足。关闭不需要的容器并提高 Docker 内存后重试。
-
-### 端口占用
-
-本项目默认使用 8080、8088、13307、6380、9200、5672 和 15672。都可以在 `.env` 中修改。用下面的命令查占用者：
-
-```powershell
-# 获取正在监听的 TCP 端口，再只保留本项目关心的端口
-Get-NetTCPConnection -State Listen | Where-Object LocalPort -In 8080,8088,13307,6380,9200,5672,15672
-```
-
-### 修改初始化 SQL 后没有生效
-
-初始化脚本只在第一次创建数据库卷时运行。若确认不再需要已有学习数据，可以执行 `docker compose down -v` 后重新启动。此操作会永久删除本项目容器卷中的数据库、缓存、搜索索引和队列数据，执行前先导出需要保留的内容。
-
-### Magento 下载失败
-
-- `401`：检查 Marketplace 公钥和私钥。
-- 版本不存在：检查 `.env` 中的 `MAGENTO_VERSION`。
-- 超时：重新执行脚本；Composer 会复用已下载缓存。
+官方参考：[ThinkPHP 项目](https://github.com/top-think/think/tree/8.x)、[MySQL LTS 模型](https://dev.mysql.com/doc/refman/8.4/en/mysql-releases.html)、[Compose up 与 wait](https://docs.docker.com/reference/cli/docker/compose/up/)、[Vue 构建工具](https://vuejs.org/guide/scaling-up/tooling.html)。

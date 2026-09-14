@@ -28,9 +28,13 @@ docker compose exec php php stages/00-environment/hello.php
 # 列出本项目当前正在运行的容器及其状态
 docker compose ps
 
-# 查看 php 服务最后 20 行日志
+# 查看容器主进程日志；本项目主进程是 sleep，通常没有输出
 docker compose logs --tail 20 php
 ```
+
+预期：版本与 hello 的输出在当前终端；最后的日志命令通常为空，这是正常的。php 容器保留工具环境，exec 启动的一次性 PHP 进程结束后，容器仍可继续使用。类似在 Node 容器内执行 node app.js；不是每次手工编译 PHP。
+
+每日练习见 [第 1 天](../../docs/lessons/01-php.md#day-1)。
 
 ## 命令字段拆解
 
@@ -60,4 +64,4 @@ docker compose logs --tail 20 php
 ## 验收
 
 - 不进入 Docker Desktop 界面也能启动、检查和停止环境。
-- 遇到命令失败时，先看状态和日志，而不是反复重装。
+- CLI 脚本失败先读当前终端报错；Web/API 服务失败再看对应服务及应用日志。

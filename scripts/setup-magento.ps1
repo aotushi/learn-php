@@ -2,7 +2,7 @@ $ErrorActionPreference = 'Stop'
 
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
 $EnvFile = Join-Path $ProjectRoot '.env'
-$MagentoDirectory = Join-Path $ProjectRoot 'stages\07-magento-foundation\app'
+$MagentoDirectory = Join-Path $ProjectRoot 'stages\10-magento-foundation\app'
 
 function Get-DotEnvValue {
     param(
@@ -37,9 +37,9 @@ if ([string]::IsNullOrWhiteSpace($PublicKey) -or [string]::IsNullOrWhiteSpace($P
 $AdminUser = Get-DotEnvValue -Name 'MAGENTO_ADMIN_USER' -Default 'admin'
 $AdminPassword = Get-DotEnvValue -Name 'MAGENTO_ADMIN_PASSWORD' -Default 'Admin123456!'
 $AdminEmail = Get-DotEnvValue -Name 'MAGENTO_ADMIN_EMAIL' -Default 'admin@example.com'
-$DatabaseName = Get-DotEnvValue -Name 'MARIADB_DATABASE' -Default 'magento'
-$DatabaseUser = Get-DotEnvValue -Name 'MARIADB_USER' -Default 'magento'
-$DatabasePassword = Get-DotEnvValue -Name 'MARIADB_PASSWORD' -Default 'magento-local-only'
+$DatabaseName = 'magento'
+$DatabaseUser = Get-DotEnvValue -Name 'MYSQL_USER' -Default 'learnphp'
+$DatabasePassword = Get-DotEnvValue -Name 'MYSQL_PASSWORD' -Default 'learnphp-local-only'
 $RabbitUser = Get-DotEnvValue -Name 'RABBITMQ_DEFAULT_USER' -Default 'magento'
 $RabbitPassword = Get-DotEnvValue -Name 'RABBITMQ_DEFAULT_PASS' -Default 'magento-local-only'
 $MagentoHostPort = Get-DotEnvValue -Name 'MAGENTO_HOST_PORT' -Default '8088'
@@ -72,19 +72,19 @@ try {
             --repository-url=https://repo.magento.com/ `
             --no-interaction `
             "magento/project-community-edition=$MagentoVersion" `
-            stages/07-magento-foundation/app
+            stages/10-magento-foundation/app
         if ($LASTEXITCODE -ne 0) { throw 'Magento 代码下载失败。' }
         Remove-Item Env:COMPOSER_AUTH -ErrorAction SilentlyContinue
     }
 
-    docker compose --profile magento up -d --wait mariadb valkey opensearch rabbitmq
+    docker compose --profile magento up -d --wait mysql valkey opensearch rabbitmq
     if ($LASTEXITCODE -ne 0) { throw 'Magento 依赖服务启动失败。' }
 
     $MagentoEnvFile = Join-Path $MagentoDirectory 'app\etc\env.php'
     if (-not (Test-Path -LiteralPath $MagentoEnvFile)) {
         docker compose --profile magento run --rm magento-php php bin/magento setup:install `
             "--base-url=$MagentoBaseUrl" `
-            --db-host=mariadb `
+            --db-host=mysql `
             "--db-name=$DatabaseName" `
             "--db-user=$DatabaseUser" `
             "--db-password=$DatabasePassword" `

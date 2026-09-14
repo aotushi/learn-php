@@ -1,0 +1,4 @@
+interface:
+  display_name: "PHP 全栈轻量教学"
+  short_description: "编写 PHP、ThinkPHP、Vue 后台与 Magento 分阶段教程"
+  default_prompt: "使用 $teach-php-fullstack 创建或更新一节轻量初学者课程，解释命令并验证练习。"

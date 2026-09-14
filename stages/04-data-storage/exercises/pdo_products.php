@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-$host = getenv('DB_HOST') ?: 'mariadb';
+$host = getenv('DB_HOST') ?: 'mysql';
 $port = getenv('DB_PORT') ?: '3306';
 $database = getenv('DB_DATABASE') ?: 'learning';
-$username = getenv('DB_USERNAME') ?: 'magento';
-$password = getenv('DB_PASSWORD') ?: 'magento-local-only';
+$username = getenv('DB_USERNAME') ?: 'learnphp';
+$password = getenv('DB_PASSWORD') ?: 'learnphp-local-only';
 
 $pdo = new PDO(
     "mysql:host={$host};port={$port};dbname={$database};charset=utf8mb4",
