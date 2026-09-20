@@ -125,6 +125,7 @@ def main() -> int:
         return 1
 
     print(f"OK: checked {len(files)} Markdown files; every shell command has a comment.")
+    print("Scope: shell-comment placement only. PHP statements and explanation quality require a separate source review.")
     return 0
 
 

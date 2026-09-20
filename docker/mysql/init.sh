@@ -9,7 +9,3 @@ if [[ ! "$MYSQL_DATABASE" =~ ^[A-Za-z0-9_]+$ || ! "$MYSQL_USER" =~ ^[A-Za-z0-9_]
     exit 1
 fi
 docker_process_sql --database="$MYSQL_DATABASE" < /opt/learning.sql
-docker_process_sql <<SQL
-CREATE DATABASE IF NOT EXISTS magento CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-GRANT ALL PRIVILEGES ON magento.* TO '$MYSQL_USER'@'%';
-SQL

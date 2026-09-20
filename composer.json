@@ -21,6 +21,9 @@
     },
     "scripts": {
         "test": "phpunit --colors=always",
+        "test:basics": "phpunit --colors=always --filter ShippingTest",
+        "test:input": "phpunit --colors=always --filter ProductInputTest",
+        "test:pricing": "phpunit --colors=always --filter OrderTotalCalculatorTest",
         "lint": "@php scripts/lint.php"
     },
     "config": {

@@ -1,0 +1,21 @@
+{
+  "docs/learning-path.md": "docs/README.md#start",
+  "docs/core-knowledge.md": "docs/README.md#learning-method",
+  "docs/command-glossary.md": "docs/README.md#commands",
+  "docs/php-reading-guide.md": "docs/README.md#php-reference",
+  "docs/practice-checkpoints.md": "docs/README.md#learning-method",
+  "docs/progress-checklist.md": "docs/README.md#learning-method",
+  "docs/docker-light-guide.md": "docs/README.md#start",
+  "docs/docker-environment.md": "docs/README.md#environment",
+  "docs/api-workshop.md": "docs/README.md#api-login",
+  "docs/vue-admin-integration.md": "docs/README.md#existing-vue",
+  "docs/php7-compatibility.md": "docs/README.md#php7",
+  "docs/job-skill-map.md": "docs/README.md#magento",
+  "docs/exercises/server-filter.md": "docs/README.md#server-filter",
+  "docs/lessons/01-php.md": "docs/README.md#basics",
+  "docs/lessons/02-foundations.md": "docs/README.md#http-data",
+  "docs/lessons/03-thinkphp.md": "docs/README.md#product-api",
+  "docs/lessons/04-integration.md": "docs/README.md#vue",
+  "docs/lessons/05-delivery.md": "docs/README.md#delivery",
+  "docs/verification.md": ".agents/archive/docs-before-handbook-2026-09-19/docs/verification.md"
+}

@@ -37,9 +37,9 @@ if ([string]::IsNullOrWhiteSpace($PublicKey) -or [string]::IsNullOrWhiteSpace($P
 $AdminUser = Get-DotEnvValue -Name 'MAGENTO_ADMIN_USER' -Default 'admin'
 $AdminPassword = Get-DotEnvValue -Name 'MAGENTO_ADMIN_PASSWORD' -Default 'Admin123456!'
 $AdminEmail = Get-DotEnvValue -Name 'MAGENTO_ADMIN_EMAIL' -Default 'admin@example.com'
-$DatabaseName = 'magento'
-$DatabaseUser = Get-DotEnvValue -Name 'MYSQL_USER' -Default 'learnphp'
-$DatabasePassword = Get-DotEnvValue -Name 'MYSQL_PASSWORD' -Default 'learnphp-local-only'
+$DatabaseName = Get-DotEnvValue -Name 'MAGENTO_MYSQL_DATABASE' -Default 'magento'
+$DatabaseUser = Get-DotEnvValue -Name 'MAGENTO_MYSQL_USER' -Default 'magento'
+$DatabasePassword = Get-DotEnvValue -Name 'MAGENTO_MYSQL_PASSWORD' -Default 'magento-local-only'
 $RabbitUser = Get-DotEnvValue -Name 'RABBITMQ_DEFAULT_USER' -Default 'magento'
 $RabbitPassword = Get-DotEnvValue -Name 'RABBITMQ_DEFAULT_PASS' -Default 'magento-local-only'
 $MagentoHostPort = Get-DotEnvValue -Name 'MAGENTO_HOST_PORT' -Default '8088'
@@ -47,7 +47,7 @@ $MagentoBaseUrl = "http://localhost:$MagentoHostPort/"
 
 Push-Location $ProjectRoot
 try {
-    docker compose build php
+    docker compose -f compose.magento.yaml build magento-php
     if ($LASTEXITCODE -ne 0) { throw 'PHP 镜像构建失败。' }
 
     $MagentoComposerFile = Join-Path $MagentoDirectory 'composer.json'
@@ -68,21 +68,21 @@ try {
             }
         } | ConvertTo-Json -Depth 4 -Compress)
 
-        docker compose run --rm -e COMPOSER_AUTH php composer create-project `
+        docker compose -f compose.magento.yaml run --rm --no-deps -e COMPOSER_AUTH magento-php composer create-project `
             --repository-url=https://repo.magento.com/ `
             --no-interaction `
             "magento/project-community-edition=$MagentoVersion" `
-            stages/10-magento-foundation/app
+            .
         if ($LASTEXITCODE -ne 0) { throw 'Magento 代码下载失败。' }
         Remove-Item Env:COMPOSER_AUTH -ErrorAction SilentlyContinue
     }
 
-    docker compose --profile magento up -d --wait mysql valkey opensearch rabbitmq
+    docker compose -f compose.magento.yaml up -d --wait mysql valkey opensearch rabbitmq
     if ($LASTEXITCODE -ne 0) { throw 'Magento 依赖服务启动失败。' }
 
     $MagentoEnvFile = Join-Path $MagentoDirectory 'app\etc\env.php'
     if (-not (Test-Path -LiteralPath $MagentoEnvFile)) {
-        docker compose --profile magento run --rm magento-php php bin/magento setup:install `
+        docker compose -f compose.magento.yaml run --rm magento-php php bin/magento setup:install `
             "--base-url=$MagentoBaseUrl" `
             --db-host=mysql `
             "--db-name=$DatabaseName" `
@@ -115,10 +115,10 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'Magento 数据库安装失败。' }
     }
 
-    docker compose --profile magento up -d --wait
+    docker compose -f compose.magento.yaml up -d --wait
     if ($LASTEXITCODE -ne 0) { throw 'Magento Web 服务启动失败。' }
 
-    docker compose exec magento-php php bin/magento cache:flush
+    docker compose -f compose.magento.yaml exec magento-php php bin/magento cache:flush
     Write-Host ''
     Write-Host 'Magento 本地环境已就绪。'
     Write-Host "店铺：$MagentoBaseUrl"

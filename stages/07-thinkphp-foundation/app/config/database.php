@@ -1,5 +1,8 @@
 <?php
 
+// 配置文件 return 一个嵌套数组，由 ThinkPHP 读取，不是立即执行数据库查询。
+// env(名称, 默认值) 是框架助手，优先读取环境配置；本项目 Docker 注入 DB_HOST=mysql 等变量。
+// 第一遍只跟踪 connections/mysql 的主机、库名、账号与端口；分布式/读写分离选项暂作可查配置。
 return [
     // 默认使用的数据库连接配置
     'default'         => env('DB_DRIVER', 'mysql'),

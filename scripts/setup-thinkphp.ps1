@@ -1,5 +1,5 @@
-# 默认只准备后端；-WithFrontend 同时准备小型 Vue 联调示例。
-param([switch]$WithFrontend)
+# 默认准备完整主线；保留 -WithFrontend 兼容旧命令。
+param([switch]$WithFrontend = $true)
 $ErrorActionPreference = 'Stop'
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
 
@@ -18,6 +18,7 @@ function Invoke-Docker {
 Push-Location $ProjectRoot
 try {
     if (-not (Get-Command docker -ErrorAction SilentlyContinue)) { throw '请先安装并打开 Docker Desktop。' }
+    if (-not (Test-Path -LiteralPath '.env')) { Copy-Item -LiteralPath '.env.example' -Destination '.env' }
     Invoke-Docker info --format '{{.ServerVersion}}'
     # image ls 找不到镜像时正常返回空值，不依赖 inspect 失败时的 stderr。
     $Image = Invoke-Docker image ls --quiet learn-php:8.4
@@ -25,20 +26,28 @@ try {
     Invoke-Docker compose up -d php
     Invoke-Docker compose exec -T php composer install --no-interaction
     Invoke-Docker compose run --rm --workdir /workspace/stages/07-thinkphp-foundation/app php composer install --no-interaction
-    Invoke-Docker compose --profile thinkphp up -d --wait mysql
+    Invoke-Docker compose up -d --wait mysql
     Invoke-Docker compose exec -T php php scripts/setup-data.php
-    Invoke-Docker compose --profile thinkphp up -d --wait thinkphp
+    Invoke-Docker compose up -d --wait thinkphp
     $PortMapping = Invoke-Docker compose port thinkphp 8000
     $ThinkPhpPort = ($PortMapping | Select-Object -First 1).Split(':')[-1]
     $Health = Invoke-RestMethod "http://localhost:$ThinkPhpPort/api/health"
     if (-not $Health.success) { throw '健康检查失败。' }
     Write-Host "ThinkPHP ready: http://localhost:$ThinkPhpPort/api/health"
     if ($WithFrontend) {
-        Invoke-Docker compose --profile frontend run --rm node npm ci
-        Invoke-Docker compose --profile frontend up -d --wait frontend
+        Invoke-Docker compose run --rm node npm ci
+        Invoke-Docker compose up -d --wait frontend
         $FrontendMapping = Invoke-Docker compose port frontend 5173
         $FrontendPort = ($FrontendMapping | Select-Object -First 1).Split(':')[-1]
         Write-Host "Vue demo: http://localhost:$FrontendPort"
     }
+    if ($WithFrontend) {
+        Invoke-Docker compose up -d --wait
+    } else {
+        Invoke-Docker compose up -d --wait php mysql web thinkphp
+    }
+    $WebMapping = Invoke-Docker compose port web 8000
+    $WebPort = ($WebMapping | Select-Object -First 1).Split(':')[-1]
+    Write-Host "Practice pages: http://localhost:$WebPort"
     Write-Host 'Local learning accounts: admin / viewer; password: LearnPhp123!'
 } finally { Pop-Location }

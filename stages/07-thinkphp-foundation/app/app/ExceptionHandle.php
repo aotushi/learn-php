@@ -50,9 +50,11 @@ class ExceptionHandle extends Handle
      */
     public function render($request, Throwable $e): Response
     {
+        // instanceof 判断对象是否属于某类；此类异常携带现成响应，应原样返回而不是重复包装。
         if ($e instanceof HttpResponseException) {
             return $e->getResponse();
         }
+        // 按异常种类决定状态：HTTP 异常保留原状态，输入异常为 422，其余为 500。
         $status = $e instanceof HttpException ? $e->getStatusCode()
             : ($e instanceof \InvalidArgumentException ? 422 : 500);
         // 详细堆栈留在 runtime/log；接口不泄漏 SQL、密码或内部路径。

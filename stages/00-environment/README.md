@@ -1,67 +1,9 @@
-# 阶段 00：环境与工具
+# 运行环境源码索引
 
-如果 Docker 已经忘得差不多，先做 [Docker 轻量伴学](../../docs/docker-light-guide.md) 中的 10 分钟练习。本阶段只要求会启动、执行、查看和停止，不要求理解 Docker 的全部原理。
+学习说明、命令、练习和完成记录都在 [唯一手册](../../docs/README.md)。本页只把文件对应到同一个学习单元；点击单元号进入具体步骤。
 
-## 目标
-
-- 理解镜像、容器、挂载目录、端口和数据卷。
-- 会在容器内执行 PHP、Composer 和 PHPUnit。
-- 会查看容器状态、日志与资源占用。
-
-## 开始
-
-下面代码块中的 `#` 开头行是注释，只用于解释，不会被 PowerShell 执行，因此可以整块复制。所有命令默认在项目根目录运行。
-
-```powershell
-# 创建并在后台启动名为 php 的服务
-docker compose up -d php
-
-# 在 php 服务中运行 PHP 程序，显示 PHP 版本
-docker compose exec php php --version
-
-# 在 php 服务中运行 Composer 程序，显示 Composer 版本
-docker compose exec php composer --version
-
-# 在 php 服务中用 PHP 执行第一个示例文件
-docker compose exec php php stages/00-environment/hello.php
-
-# 列出本项目当前正在运行的容器及其状态
-docker compose ps
-
-# 查看容器主进程日志；本项目主进程是 sleep，通常没有输出
-docker compose logs --tail 20 php
-```
-
-预期：版本与 hello 的输出在当前终端；最后的日志命令通常为空，这是正常的。php 容器保留工具环境，exec 启动的一次性 PHP 进程结束后，容器仍可继续使用。类似在 Node 容器内执行 node app.js；不是每次手工编译 PHP。
-
-每日练习见 [第 1 天](../../docs/lessons/01-php.md#day-1)。
-
-## 命令字段拆解
-
-| 字段 | 完整写法或来源 | 这里表示什么 |
+| 学习单元 | 文件 | 本次用途 |
 | --- | --- | --- |
-| `docker` | Docker 客户端 | 把命令发送给 Docker |
-| `compose` | Compose，非缩写 | 按本项目的 `compose.yaml` 管理服务 |
-| `up` | up，非缩写 | 创建并启动服务 |
-| `-d` | `--detach` | 让服务在后台运行 |
-| `exec` | `execute` | 在已经运行的服务容器中执行命令 |
-| 第一个 `php` | Compose 服务名 | 选择在哪个服务中运行 |
-| 第二个 `php` | PHP 程序名 | 选择要运行的程序 |
-| `--version` | version | 显示版本信息 |
-| `composer` | Composer 程序名 | PHP 的依赖管理工具 |
-| `ps` | `process status` | 显示容器状态 |
-| `logs` | logs，非缩写 | 查看服务日志 |
-| `--tail 20` | tail，末尾 | 只取最后 20 行 |
+| [00.1](../../docs/README.md#unit-00-1) | [examples/01-hello.php](examples/01-hello.php) | 终端入口；自己的文件放 exercises/my-hello.php |
 
-完整词典见 [命令与缩写词典](../../docs/command-glossary.md)。
-
-## 必做练习
-
-1. 修改 `hello.php` 的名字，再运行一次，观察本机文件如何立即出现在容器中。
-2. 在容器中运行 `pwd`、`ls -la`、`ps aux`、`php -m`。
-3. 解释停止容器与删除容器的区别，解释数据卷为何适合数据库。
-
-## 验收
-
-- 不进入 Docker Desktop 界面也能启动、检查和停止环境。
-- CLI 脚本失败先读当前终端报错；Web/API 服务失败再看对应服务及应用日志。
+参考入口在 examples/；已有 exercises/ 和旧路径下的实验均保留。自己的 my-* 文件按手册创建或继续编辑，不覆盖已有作业。src/public/app 中的文件按职责命名，通过表中入口使用。

@@ -16,12 +16,14 @@ Use this file only when maintaining the Skill's teaching strategy.
 ## Deliberate local differences
 
 - Produce lightweight Markdown rather than HTML lessons and browser widgets.
-- Use the existing `stages/` curriculum rather than creating a parallel lesson workspace.
+- Keep one learner handbook at `docs/README.md`; use `stages/` for source material and small file maps. Do not add parallel routes, mandatory guides, or progress lists.
 - Teach Docker concurrently with PHP instead of treating Docker as an independent prerequisite.
-- Use ThinkPHP and an existing Vue admin for the 30-day first phase; keep Magento as a separate second phase.
+- Use ThinkPHP and the supplied Vue demo for the first phase, with learning units mapped to source stages; keep existing-admin adaptation optional and Magento in a separate second phase.
 - Reuse the Vue frontend through a small HTTP contract instead of copying its implementation or advanced authentication.
 - Require a plain-language comment before every executable shell command.
-- Expand new options and acronyms on first use, then centralize reusable meanings in `docs/command-glossary.md`.
-- Verify copyable commands with the smallest relevant Docker profile.
+- Review the PHP source as teaching material too: explain new statements, symbols, actual arguments and failure paths at their first use, not only the command that launches the file. Keep semantic review separate from automated formatting checks.
+- Expand new options and acronyms on first use, then centralize reusable meanings in `docs/README.md#commands`.
+- Verify copyable commands with the relevant Compose project and services.
+- Concentrate recurring practice on a few transferable backend models. Track guided runs separately from independent implementation and later transfer, using the repository's `docs/README.md#learning-method` as the current learner-specific priority map.
 
 When upstream Skills change, compare their teaching principles with this list. Adopt improvements individually and preserve local differences unless the learner explicitly changes the project strategy.

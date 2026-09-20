@@ -1,0 +1,78 @@
+[
+  {
+    "path": "docs/api-workshop.md",
+    "sha256": "3161C2633EE808A83D6A42AD57AF5C815F637FAE6CCC7D158034859865CACEB3"
+  },
+  {
+    "path": "docs/command-glossary.md",
+    "sha256": "6572FA2FAF48B9655381F7CE49427F0C1C0509EABB352DB596F65C2133F5EBA1"
+  },
+  {
+    "path": "docs/core-knowledge.md",
+    "sha256": "0208B44B9909174835EE36619DEBEE7713CA374F2A9327B2F62E891CC83AD3EB"
+  },
+  {
+    "path": "docs/docker-environment.md",
+    "sha256": "2CACD4B2A98A17512ED4BA8C4C1ECCC1582CE044266FCF2370C0EF0ACC3262D3"
+  },
+  {
+    "path": "docs/docker-light-guide.md",
+    "sha256": "0E2FF61CDB3DC5C8BE49331AE39A9DBB383BA7457A2C4D9B209BCE36608B9557"
+  },
+  {
+    "path": "docs/job-skill-map.md",
+    "sha256": "91E94E9DD6B1D496DA988F4D0B27FDD0F95CFBB04E74FCAFC17050425B696D96"
+  },
+  {
+    "path": "docs/learning-path.md",
+    "sha256": "235CF162EF6778BCBBACF35DBFD7E2DA32B8EDA62E97DA94C8F9249E8F9D0F36"
+  },
+  {
+    "path": "docs/php-reading-guide.md",
+    "sha256": "53FB6BF6E0FA74A5B93B3CB0CBC851817CDDEA4B3703ADDC3F2C061D1DBAFCFE"
+  },
+  {
+    "path": "docs/php7-compatibility.md",
+    "sha256": "3B0DA9E089E3732A457FCB5B27EB02A3E7E1B1C37CFB8B5BD75F1854B78FABED"
+  },
+  {
+    "path": "docs/practice-checkpoints.md",
+    "sha256": "14E48E6BADF89381C8AE07B9F13C58520E51444017EC5B4DB9D3AA165B059AB6"
+  },
+  {
+    "path": "docs/progress-checklist.md",
+    "sha256": "F399BD0982E31FB5F9B8F23C2E3F8003B1EA8C31ACC09AF9B38A629873C37CA6"
+  },
+  {
+    "path": "docs/verification.md",
+    "sha256": "28650298BF002779A4EE09A697660C92D73E3604432DAD397E0439F021E810B7"
+  },
+  {
+    "path": "docs/vue-admin-integration.md",
+    "sha256": "18D1EFA2568DD391DD640091118B74E67D9E61F471609C8D3B6F67A58383F7B1"
+  },
+  {
+    "path": "docs/exercises/server-filter.md",
+    "sha256": "09C8C3C3459B87AC84C099F83253593C1E1B14D1843533D502827F2E54E150CA"
+  },
+  {
+    "path": "docs/lessons/01-php.md",
+    "sha256": "6A06FBCBF5FABBFF47A0EB346506795511E690BE721E68006E4505516221E10F"
+  },
+  {
+    "path": "docs/lessons/02-foundations.md",
+    "sha256": "D5C590DFF6512752249E03A02877F7FAFBA792594908DB235D0AF8FFDC012E62"
+  },
+  {
+    "path": "docs/lessons/03-thinkphp.md",
+    "sha256": "86E749370EE732B7282131E5DEB5A7F4CF2775589640FCDFD27F03C20ABB4002"
+  },
+  {
+    "path": "docs/lessons/04-integration.md",
+    "sha256": "696C55317767B520465EEAA19E2F01409E6795D4CE46B3E71409292C7E85EAA7"
+  },
+  {
+    "path": "docs/lessons/05-delivery.md",
+    "sha256": "52238883289309CA1772CA6482000F6D47CE2D34A903B456F172E3A56EB996E2"
+  }
+]

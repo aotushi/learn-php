@@ -1,5 +1,7 @@
 # 阶段 12：搜索、队列、性能、维护与升级
 
+本目录是第二阶段的素材与目标提纲，未完成完整安装和运行验收。先完成 [学习手册主线](../../docs/README.md)，准备边界见 [Magento 选读](../../docs/README.md#magento)。下列目标不属于第一阶段必修。
+
 ## OpenSearch
 
 - 学习索引、文档、字段映射、分词、相关性和聚合。
@@ -14,7 +16,7 @@ Invoke-RestMethod http://localhost:9200
 Invoke-RestMethod http://localhost:9200/_cluster/health
 ```
 
-`Invoke-RestMethod` 是 PowerShell 发送 HTTP 请求并解析响应的命令；`localhost` 表示本机，`9200` 是 OpenSearch 暴露给本机的端口。缩写可查 [命令与缩写词典](../../docs/command-glossary.md)。
+`Invoke-RestMethod` 是 PowerShell 发送 HTTP 请求并解析响应的命令；`localhost` 表示本机，`9200` 是 OpenSearch 暴露给本机的端口。缩写可查 [命令与缩写词典](../../docs/README.md#commands)。
 
 ## RabbitMQ
 

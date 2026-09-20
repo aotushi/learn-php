@@ -1,4 +1,5 @@
 .env
+.scratch/
 .idea/
 .vscode/
 vendor/
