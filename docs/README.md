@@ -473,7 +473,7 @@ docker compose exec php php stages/02-oop-composer/exercises/my-discount.php
 | [03.1 HTML](#unit-03-1) | [public/index.php](../stages/03-web-security/public/index.php) | public/my-request.php 的请求变量实验 | 解释终端与浏览器的区别 |
 | [03.2 JSON](#unit-03-2) | [public/hello-json.php](../stages/03-web-security/public/hello-json.php) | 同一个 my-request.php，加入 JSON 与验证 | 正常 200，数组输入 422 |
 
-public/products.php 等到 [04.2](#unit-04-2) 学过数据库后再读。
+[stages/03-web-security/public/products.php](../stages/03-web-security/public/products.php) 是原生 HTTP 入口，因此保留在 Web 服务公开的 `public/` 目录；等到 [04.2](#unit-04-2) 学过数据库后再读。
 
 <a id="checkpoint-request"></a>
 <a id="unit-03-1"></a>
@@ -530,7 +530,7 @@ Invoke-RestMethod http://localhost:8080/hello-json.php
 | 单元 | 阅读顺序 / 参考入口 | 自己写 | 验收 |
 | --- | --- | --- | --- |
 | [04.1 绑定查询](#unit-04-1) | [表结构](../docker/mysql/init.sql) → [01-pdo-products.php](../stages/04-data-storage/examples/01-pdo-products.php) | exercises/my-query.php | 门槛作用于 SQL |
-| [04.2 查询响应](#unit-04-2) | [连接文件](../scripts/database.php) → [public/products.php](../stages/03-web-security/public/products.php) | 改请求参数，暂不新增写接口 | 200 / 422 与真实数据 |
+| [04.2 查询响应](#unit-04-2) | [stages/03-web-security/public/products.php](../stages/03-web-security/public/products.php) → 在 require 处打开 [scripts/database.php](../scripts/database.php) → 回到入口 | 改请求参数，暂不新增写接口 | 200 / 422 与真实数据 |
 | [04.3 查询计划](#indexes-transactions) | [02-query-plan.php](../stages/04-data-storage/examples/02-query-plan.php) | 09.2 时观察 | 解释 key、rows |
 | [04.4 事务](#unit-04-4) | [03-transaction.php](../stages/04-data-storage/examples/03-transaction.php) | exercises/my-transaction.php | 自己的临时行被回滚 |
 
@@ -569,7 +569,9 @@ docker compose exec php php stages/04-data-storage/exercises/my-query.php
 
 ### 04.2 · 把查询结果作为 HTTP 响应
 
-读 products.php 的四段：读取 minimum → 判断合法性 → prepare/execute → JSON。连接细节复用 database.php，所以入口里的 require 接收它 return 的 PDO 对象。
+本单元不会在 `04-data-storage` 中再复制一个 `products.php`。打开 [stages/03-web-security/public/products.php](../stages/03-web-security/public/products.php)：它是浏览器访问的 HTTP 入口，所以继续放在 Web 服务公开的 `03-web-security/public/` 目录；04.2 只是为这个入口加入数据库知识。
+
+先从入口向下读；遇到 `require` 时打开 [scripts/database.php](../scripts/database.php)，确认它 `return new PDO(...)`，再回到入口。实际执行顺序是：设置 JSON 响应头 → 加载连接并取得 PDO → 读取 `minimum` → 判断缺失、类型与范围 → prepare/execute → 编码查询行 → catch 连接或查询失败。学习单元号说明“现在学什么”，文件路径说明“代码承担什么职责”。
 
 ```powershell
 # 查询应为 success=True，返回行的 price_minor 都至少为 5000
@@ -584,9 +586,9 @@ FILTER_VALIDATE_INT 有效时返回整数、缺少时 null、失败时 false；`
 
 | 完成记录 | 证据 |
 | --- | --- |
-| 跟做：说明 URL → PHP → SQL → JSON 各处理什么 | — |
-| 独立：my-query.php 的参数、排序与门槛相等两侧 | — |
-| 排错与下次变式：区分连接失败、空结果、422；换另一个门槛 | — |
+| 跟做：说明 URL → PHP → SQL → JSON 各处理什么 | 示例（2026-09-21）：请求 `/products.php?minimum=5000` 得到 200；URL 把 `minimum=5000` 交给 `products.php`，PHP 验证参数并把 5000 绑定到 SQL，MySQL 返回价格不少于 5000 分的行，PHP 再编码为 `success/data` JSON。实际返回 9900、19900 分。 |
+| 独立：my-query.php 的参数、排序与门槛相等两侧 | 2026-09-21：门槛为 9900 时返回 9900、19900；改为 9901 后只返回 19900，证明 >= 包含等于门槛的商品。查询按 price_minor、id 升序。 |
+| 排错与下次变式：区分连接失败、空结果、422；换另一个门槛 | 2026-09-21：minimum=20000 返回 200、success=true、data=[]；minimum[]=1 返回 422 和参数错误；MySQL 不可用时返回 500/Internal server error，日志记录具体连接错误。空结果不是连接失败。[products.php](../stages/03-web-security/public/products.php) |
 
 下一步：[05.1](#unit-05-1)。
 
@@ -605,7 +607,7 @@ FILTER_VALIDATE_INT 有效时返回整数、缺少时 null、失败时 false；`
 
 ### 05.1 · 自动比较预期和实际
 
-PHPUnit 是自动测试工具。根 phpunit.xml 在运行时先加载 Composer，再发现根 tests 中的测试；因此参考测试能直接使用已配置自动加载的类。普通函数仍在测试中 require_once。
+PHPUnit 是自动测试工具。根 phpunit.xml 在运行时先加载 Composer，再发现项目根目录 `tests/` 中的测试；因此参考测试能直接使用已配置自动加载的类。普通函数仍在测试中 require_once。
 
 ```powershell
 # 只运行已学运费函数的参考检查，不运行 Pricing 或框架输入测试
@@ -662,7 +664,7 @@ docker compose exec php composer test -- --filter MyPriceInputTest
 | 完成记录 | 证据 |
 | --- | --- |
 | 跟做：解释预期、实际、异常检查与测试发现位置 | — |
-| 独立：MyPriceInputTest.php 覆盖当前整数规则与坏输入 | — |
+| 独立：MyPriceInputTest.php 覆盖当前整数规则与坏输入 | 输入0测试通过, 输入负数抛出异常 |
 | 排错与下次变式：检查先失败再通过；为数量函数独立写一条断言 | — |
 
 下一步：[07.1](#unit-07-1)。06 的页面联调在接口之后，源码目录无需改名。

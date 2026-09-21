@@ -14,15 +14,22 @@ try {
         echo json_encode(['success' => false, 'error' => 'minimum 必须是非负整数。']);
         exit;
     }
-    // ? 是 SQL 值占位符，不是 PHP 三元运算；prepare 准备语句，execute 用数组按顺序提供值。
+    // 04.1 的 :minimum_price 是“命名占位符”；这里的 ? 是“位置占位符”，也不是 PHP 三元运算。
+    // 两种写法都会把 SQL 结构和值分开。区别仅是：命名占位符按名称绑定，? 按从左到右的位置绑定。
     $statement = $pdo->prepare('SELECT id, sku, name, price_minor FROM products WHERE price_minor >= ? ORDER BY id');
-    // ?? 只在左边不存在或为 null 时用 0；合法的整数 0 不会被当成缺少。
+    // ?? 先得到实际值：minimum 缺少/null 时用 0；合法整数 0 不会被当成缺少。
+    // 外层 [...] 创建一个只有一项的绑定列表；第 1 项绑定 SQL 中第 1 个 ?。
+    // 等价的命名写法是 WHERE price_minor >= :minimum_price，随后：
+    // execute(['minimum_price' => $minimum ?? 0])。
     $statement->execute([$minimum ?? 0]);
     // fetchAll 取出所有结果行；JSON_UNESCAPED_UNICODE 保留可读的 Unicode 字符，而非 \u 转义形式。
     echo json_encode(['success' => true, 'data' => $statement->fetchAll()], JSON_UNESCAPED_UNICODE);
 } catch (Throwable $e) {
-    // 详细错误写服务器日志；客户端仅收到通用错误。$e 是我们取的变量名，不是特殊语法。
+    // Throwable 也可能包含数据库以外的错误；具体原因只写服务器日志，不向客户端泄露内部信息。
     error_log($e->getMessage());
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Database unavailable']);
+    echo json_encode([
+        'success' => false,
+        'error' => 'Internal server error',
+    ], JSON_UNESCAPED_UNICODE);
 }

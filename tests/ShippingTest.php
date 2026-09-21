@@ -9,6 +9,7 @@ final class ShippingTest extends TestCase
 {
     public function testShippingBoundary(): void
     {
+        // assertSame(预期, 实际)
         self::assertSame(2000, shipping(29899));
         self::assertSame(0, shipping(29900));
     }

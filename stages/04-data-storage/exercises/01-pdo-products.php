@@ -29,7 +29,7 @@ $minimumPrice = 5000;
 // SELECT 选列，FROM 指定表，WHERE 限制行，ORDER BY ... ASC 按价格升序。
 // prepare 准备 SQL；:minimum_price 是命名占位符，不能把用户输入拼进 SQL 结构。
 $statement = $pdo->prepare(
-    'SELECT sku, name, price_minor, currency, stock_qty
+    'SELECT sku, name, price_minor
      FROM products
      WHERE price_minor >= :minimum_price
      ORDER BY price_minor ASC',
@@ -40,11 +40,9 @@ $statement->execute(['minimum_price' => $minimumPrice]);
 foreach ($statement as $product) {
     // printf 按顺序填参数并直接输出；%s 是字符串，%.2f 是两位小数，%d 是整数，\n 是换行。
     printf(
-        "%s | %s | %s %.2f | 库存 %d\n",
+        "%s | %s | %.2f\n",
         $product['sku'],
         $product['name'],
-        $product['currency'],
         $product['price_minor'] / 100,
-        $product['stock_qty'],
     );
 }

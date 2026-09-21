@@ -4,6 +4,7 @@ declare(strict_types=1);
 // 共用连接文件返回 PDO；require / dirname 的拆解见 public/products.php 与 PHP 阅读速查。
 $pdo = require dirname(__DIR__, 3) . '/scripts/database.php';
 // EXPLAIN 查看查询计划；* 表示全部列，? 是值占位符，不是执行耗时测量。
+// EXPLAIN 是 MySQL（以及很多数据库）提供的一个查询分析命令，用来查看这条 SQL 会怎么执行，而不是真正去查数据。
 $statement = $pdo->prepare('EXPLAIN SELECT * FROM products WHERE sku = ?');
 $statement->execute(['LEARN-PHP-001']);
 // fetchAll 取计划结果的全部行；print_r 以便于人阅读的结构输出数组，不生成 JSON。
