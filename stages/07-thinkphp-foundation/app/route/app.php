@@ -6,11 +6,14 @@ use think\facade\Db;
 use app\middleware\RequireLogin;
 
 // 07.1：最小只读教学入口，先跟通路由与响应；商品权限仍由下方路由组保护。
+// get 注册 GET 规则并返回 RuleItem；completeMatch 要求这条规则匹配完整路径，不会立即执行控制器。
+// 当前 config/route.php 也把完整匹配设为 true；显式写在这里可保留本条路由的要求。
 Route::get('api/learning/hello', 'Learning/hello')->completeMatch();
 
 // :: 调用类入口；get 注册 GET 路由。function () {...} 是匿名函数，收到请求时才执行函数体。
 Route::get('api/health', function () {
-    // SELECT 1 用最小查询验证数据库可用；json 是 ThinkPHP 助手，返回响应对象，不是 json_encode 文本。
+    // SELECT 1 用最小查询验证数据库可用；失败会抛异常，不会执行下面的 return。
+    // ExceptionHandle 负责把异常变成错误响应；json 是返回响应对象的框架助手。
     Db::query('SELECT 1');
     return json([
         'success' => true,

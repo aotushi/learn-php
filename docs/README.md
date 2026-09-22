@@ -702,6 +702,15 @@ Invoke-RestMethod http://localhost:18081/api/learning/hello
 
 **自己试：** 先保存该文件当前内容，仅把 Learning/hello 的消息临时改成自己的文字，再请求，最后恢复 Hello from PHP。不要改商品接口。完成时能画出“URL → 路由 → 方法 → 响应”，并区分 json 返回对象和 json_encode 返回文本。
 
+```text
+用户用 GET 访问 /api/learning/hello
+→ public/index.php 启动 ThinkPHP
+→ route/app.php 中注册的路由匹配这次请求
+→ 框架调用 Learning::hello()
+→ hello() 用 json(...) 返回响应对象
+→ 入口发送状态、响应头和 JSON 正文
+```
+
 <a id="unit-07-2"></a>
 
 ### 07.2 · 在请求里调用数据库
@@ -714,6 +723,13 @@ Invoke-RestMethod http://localhost:18081/api/health
 只读路由 api/health：Db 是框架数据库入口；SELECT 1 不改表，成功后返回应用信息。框架从 [database.php 配置](../stages/07-thinkphp-foundation/app/config/database.php) 取得连接配置，已有主线环境已设置好。
 
 **自己试：** 对照原生 04.2，写出 PDO 连接/查询/编码分别被框架哪一部分承担。不要为了制造错误停止数据库。下一步用真正的商品列表；它需要先登录。
+
+```text
+04.2：入口 require scripts/database.php，取得它用 new PDO 建立的连接；
+      $pdo->prepare(...) 准备 SQL，$statement->execute(...) 执行；json_encode + echo 输出 JSON。
+07.2：ThinkPHP 从 config/database.php 读取连接配置；Db::query('SELECT 1') 在真实 MySQL 执行只读查询；
+      查询成功后 return json(...)，失败则抛异常，由框架的异常处理器返回错误响应。
+```
 
 <a id="api-login"></a>
 
