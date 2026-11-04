@@ -4,6 +4,14 @@ declare(strict_types=1);
 // 02.2：use 为完整类名引入短名称，本身不会执行 LineItem.php。
 use LearnPhp\Pricing\LineItem;
 
+/**
+ * // 使用简称
+* $item = new LineItem('BOOK', 2500, 2);
+
+* // 完整名称仍然可以使用
+* $other = new \LearnPhp\Pricing\LineItem('BOOK', 2500, 2);
+ */
+
 // 先执行定义文件，PHP 才认识里面的类；路径相对于本文件，而不是终端目录。
 // require_once __DIR__ . '/../src/Pricing/LineItem.php';
 require __DIR__ . '/../src/Pricing/LineItem.php';

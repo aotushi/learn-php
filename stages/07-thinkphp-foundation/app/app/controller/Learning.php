@@ -10,6 +10,6 @@ final class Learning
     public function hello(): Json
     {
         // json 是框架助手，返回响应对象；框架入口负责发送状态、头和正文。
-        return json(['success' => true, 'data' => ['message' => 'Hello from PHP']]);
+        return json(['success' => true, 'data' => ['message' => 'Hello from PHP1']]);
     }
 }

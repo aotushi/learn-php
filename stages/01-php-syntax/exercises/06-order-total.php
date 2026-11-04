@@ -43,7 +43,7 @@ $discount = $subtotal >= 10000 ? intdiv($subtotal * 10, 100) : 0;
 $shipping = $subtotal - $discount >= 29900 ? 0 : 2000;
 $total = $subtotal - $discount + $shipping;
 
-echo '商品小计：' . formatMoney($subtotal) . PHP_EOL;  //14900->149.00
+echo '商品小计：' . formatMoney($subtotal) . PHP_EOL;  //14900->149.00 CNY 149.00
 echo '优惠金额：' . formatMoney($discount) . PHP_EOL;  //1490->14.90
 echo '运费：' . formatMoney($shipping) . PHP_EOL;     //2000->20.00
 echo '应付总额：' . formatMoney($total) . PHP_EOL;     //15410->154.10

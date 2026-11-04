@@ -8,7 +8,8 @@ use app\middleware\RequireLogin;
 // 07.1：最小只读教学入口，先跟通路由与响应；商品权限仍由下方路由组保护。
 // get 注册 GET 规则并返回 RuleItem；completeMatch 要求这条规则匹配完整路径，不会立即执行控制器。
 // 当前 config/route.php 也把完整匹配设为 true；显式写在这里可保留本条路由的要求。
-Route::get('api/learning/hello', 'Learning/hello')->completeMatch();
+// Route::get('api/learning/hello', 'Learning/hello')->completeMatch();
+Route::get('api/learning/hello', 'Learning/hello');
 
 // :: 调用类入口；get 注册 GET 路由。function () {...} 是匿名函数，收到请求时才执行函数体。
 Route::get('api/health', function () {
